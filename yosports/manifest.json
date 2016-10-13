@@ -4,7 +4,7 @@
 		"iPhone",
 		"iPad"
 	],
-	"id": "H53EB5F0B",/*应用的标识，创建应用时自动生成，勿手动修改*/
+	"id": "yosports",/*应用的标识，创建应用时自动生成，勿手动修改*/
 	"name": "学生体质健康测评数据上报系统",/*应用名称，程序桌面图标名称*/
 	"version": {
 		"name": "1.0.0",/*应用版本名称*/
@@ -82,7 +82,7 @@
 		"Webview": {},
 		"NativeUI": {},
 		"Navigator": {},
-		"NativeObj": {},"Share":{},"OAuth":{},"Device":{}
+		"NativeObj": {},"Device":{}
 	},
 	"plus": {
 		"splashscreen": {
