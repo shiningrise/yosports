@@ -122,6 +122,11 @@
 			<div class="mui-content-padded oauth-area">
 
 			</div>
+			
+			<div class="mui-content-padded">
+				<button id="btnTest" type="button" class="mui-btn mui-btn-blue mui-btn-block">test plus</button>
+			</div>
+			
 		</div>
 		<script src="js/mui.min.js"></script>
 		<script src="js/mui.enterfocus.js"></script>
@@ -140,6 +145,9 @@
 					var autoLoginButton = doc.getElementById("autoLogin");
 					var regButton = doc.getElementById('reg');
 					var forgetButton = doc.getElementById('forgetPassword');
+					
+					var btnTest = doc.getElementById("btnTest");
+					
 					loginButton.addEventListener('tap', function(event) {
 						var loginInfo = {
 							account: accountBox.value,
@@ -149,6 +157,67 @@
 						mui.toast("login by " + accountBox.value);
 						alert('login');
 					});
+					
+					regButton.addEventListener('tap', function(event) {
+						$.openWindow({
+							url: 'reg.html',
+							id: 'reg',
+							preload: true,
+							show: {
+								aniShow: 'pop-in'
+							},
+							styles: {
+								popGesture: 'hide'
+							},
+							waiting: {
+								autoShow: false
+							}
+						});
+					}, false);
+					forgetButton.addEventListener('tap', function(event) {
+						$.openWindow({
+							url: 'forget_password.html',
+							id: 'forget_password',
+							preload: true,
+							show: {
+								aniShow: 'pop-in'
+							},
+							styles: {
+								popGesture: 'hide'
+							},
+							waiting: {
+								autoShow: false
+							}
+						});
+					}, false);
+					
+					btnTest.addEventListener('tap',function(event){
+						
+						if(window.localStorage){
+						 	alert('This browser supports localStorage');
+						}else{
+						 	alert('This browser does NOT support localStorage');
+						}
+
+						var regInfo = regInfo || {};
+						regInfo.account = regInfo.account || '123';
+						regInfo.password = regInfo.password || '123';
+						var users = JSON.parse(localStorage.getItem('$users') || '[]');
+						users.push(regInfo);
+		
+						localStorage.setItem('$users', JSON.stringify(users));
+						var users = JSON.parse(localStorage.getItem('$users') || '[]');
+						alert(users[0].account);
+						if (window.plus) 
+						{
+							//alert('plus = true');
+						}
+						else
+						{
+							//alert('plus = false');
+						}
+					});
+
 				})
 				
 				$.plusReady(function() {
@@ -272,38 +341,7 @@
 							app.setSettings(settings);
 						}, 50);
 					}, false);
-					regButton.addEventListener('tap', function(event) {
-						$.openWindow({
-							url: 'reg.html',
-							id: 'reg',
-							preload: true,
-							show: {
-								aniShow: 'pop-in'
-							},
-							styles: {
-								popGesture: 'hide'
-							},
-							waiting: {
-								autoShow: false
-							}
-						});
-					}, false);
-					forgetButton.addEventListener('tap', function(event) {
-						$.openWindow({
-							url: 'forget_password.html',
-							id: 'forget_password',
-							preload: true,
-							show: {
-								aniShow: 'pop-in'
-							},
-							styles: {
-								popGesture: 'hide'
-							},
-							waiting: {
-								autoShow: false
-							}
-						});
-					}, false);
+					
 					//
 					window.addEventListener('resize', function() {
 						oauthArea.style.display = document.body.clientHeight > 400 ? 'block' : 'none';
