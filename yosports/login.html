@@ -170,7 +170,9 @@
 							UserName: accountBox.value,
 							Password: $$.md5(passwordBox.value)
 						};
-						loginInfo = {UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"};
+						if(window.plus == null)
+							loginInfo = {UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"};
+						
 						respnoseEl.innerHTML = '正在请求中...';
 						post('/ACL/User/Login',loginInfo,function(data){
 							//console.log('return:');		
