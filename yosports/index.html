@@ -9,6 +9,9 @@
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 		<link rel="stylesheet" href="css/mui.min.css">
+		<link href="css/mui.picker.css" rel="stylesheet" />
+		<link href="css/mui.poppicker.css" rel="stylesheet" />
+		
 	</head>
 
 	<body>
@@ -21,23 +24,38 @@
 		<div class="mui-content">
 			<div class="mui-card">
 				<ul class="mui-table-view">
-					<li class="mui-table-view-cell mui-collapse">
+					<li class="mui-table-view-cell">
 						<a class="mui-navigate-right" href="#">表单</a>
 						<div class="mui-collapse-content">
 							<form class="mui-input-group">
 								<div class="mui-input-row">
-									<label>Input</label>
-									<input type="text" placeholder="普通输入框">
+									<label>学校</label>
+									<input id="txt_schoolName" type="text" placeholder="学校名称">
 								</div>
-								<div class="mui-input-row">
-									<label>Input</label>
-									<input type="text" class="mui-input-clear" placeholder="带清除按钮的输入框">
+								<button id="showArchivePicker" class="mui-btn mui-btn-block" type="button">选择测试档案</button>
+								
+								<button id="showClassPicker" class="mui-btn mui-btn-block" type="button">选择班级</button>
+								
+								<button id="showSubjectPicker" class="mui-btn mui-btn-block" type="button">选择项目</button>
+								
+								<button id="showSexPicker" class="mui-btn mui-btn-block" type="button">选择性别</button>
+								
+								
+								<div class="mui-input-group">
+									<div class="mui-input-row">
+										<label> 学生1</label>
+										<input name="student" type="text" placeholder="学生1">
+									</div>
+									<div class="mui-input-row">
+										<label> 学生1</label>
+										<input name="student" type="text" placeholder="学生1">
+									</div>
+									<div class="mui-input-row">
+										<label> 学生1</label>
+										<input name="student" type="text" placeholder="学生1">
+									</div>
 								</div>
-		
-								<div class="mui-input-row mui-plus-visible">
-									<label>Input</label>
-									<input type="text" class="mui-input-speech mui-input-clear" placeholder="语音输入">
-								</div>
+								
 								<div class="mui-button-row">
 									<button class="mui-btn mui-btn-primary" type="button" onclick="return false;">确认</button>&nbsp;&nbsp;
 									<button class="mui-btn mui-btn-primary" type="button" onclick="return false;">取消</button>
@@ -50,7 +68,9 @@
 		</div>
 
 		<script src="js/mui.min.js"></script>
-		<script src="js/update.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mui.picker.js"></script>
+		<script src="js/mui.poppicker.js"></script>
+		<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-2.1.1.min.js"></script>
 		<script>
 			var menu = null,
 				main = null;
@@ -60,17 +80,199 @@
 				statusBarBackground: '#f7f7f7',
 				gestureConfig: {
 					doubletap: true
-				},
-				subpages: [{
-					id: 'list',
-					url: 'list.html',
-					styles: {
-						top: '45px',
-						bottom: 0,
-						bounce: 'vertical'
-					}
-				}]
+				}
+//				subpages: [{
+//					id: 'list',
+//					url: 'list.html',
+//					styles: {
+//						top: '45px',
+//						bottom: 0,
+//						bounce: 'vertical'
+//					}
+//				}]
 			});
+			
+			var post = function(token,uGuid,path,data,success){
+					var rootUrl = 'http://service.yosports.cn';
+					if (window.plus) 
+					{
+						rootUrl = 'http://service.yosports.cn';
+					}
+					else
+					{
+						rootUrl = '/DomainProxy';
+					}
+					//var token = 'nonce=123456&timestamp=20161015090105001&signature=056cf3c7f1111e8cdeb283d23f11565f';
+					//&uGuid=4345d7f2-3ed9-40f1-a64d-a68199a5dc8e
+					var url = rootUrl + path + '?' + token + '&uGuid='+uGuid
+					var type = "post";
+					var dataType = "json";
+					
+					console.log('post url:');
+					console.log(url);
+					console.log('post:');
+					console.log(data);
+					
+					if (type === 'get') {
+						if (dataType === 'json') {
+							mui.getJSON(url, data, success);
+						} else {
+							mui.get(url, data, success, dataType);
+						}
+					} else if (type === 'post') {
+						mui.post(url, data, success, dataType);
+					}
+				};
+			
+			(function($, doc,$$) {
+				$.init();
+				$.ready(function() {
+					
+					var token = localStorage.getItem('token');
+					var uGuid = localStorage.getItem('uGuid');
+					var schoolGuid = localStorage.getItem('schoolGuid');
+					var schoolName = localStorage.getItem('schoolName');
+					
+					var txt_schoolName = doc.getElementById("txt_schoolName");
+					txt_schoolName.value = schoolName;
+					
+					console.log(token);
+					console.log(uGuid);
+					console.log(schoolGuid);
+					console.log(schoolName);
+					
+					if(token == null || uGuid == null || schoolGuid == null)
+					{
+						window.location.href = 'login.html';
+						return;
+					}
+					
+					//普通示例
+					var sexPicker = new $.PopPicker();
+					sexPicker.setData([{
+						value: '0',
+						text: '请选择性别'
+					}, {
+						value: '1',
+						text: '男'
+					}, {
+						value: '2',
+						text: '女'
+					}]);
+					
+					var showSexPicker = doc.getElementById('showSexPicker');
+					showSexPicker.addEventListener('tap', function(event) {
+						sexPicker.show(function(items) {
+							showSexPicker.innerText = items[0].text;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+						});
+					}, false);
+					
+					var ArchivePicker = new $.PopPicker();
+					var Archives =[];
+					post(token,uGuid,'/APP/Archive/GetListForSchool',{PageIndex:0,PageSize:10,Expired:false},function(data){
+						//console.log('return:');		
+						//console.log(data);		
+						//respnoseEl.innerHTML = '';
+						if(data.ResultCode == 0)
+						{
+							data.Data.forEach(function(e){
+								Archives.push({value:e.Guid,text: e.Title});
+							});
+							ArchivePicker.setData(Archives);
+						}
+					});
+					
+					//普通示例
+					
+					var ClasssPicker = new $.PopPicker();
+					var Classs = [];
+					var showClassPicker = doc.getElementById('showClassPicker');
+					var showArchivePicker = doc.getElementById('showArchivePicker');
+					showArchivePicker.addEventListener('tap', function(event) {
+						ArchivePicker.show(function(items) {
+							//userResult.innerText = items[0].text;
+							showArchivePicker.innerText = items[0].text;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+							post(token,uGuid,'/APP/Class/GetList',{PageIndex:0,PageSize:100,Key:'',GradeCode:''},function(data){
+								//console.log('return:');		
+								//console.log(data);		
+								//respnoseEl.innerHTML = '';
+								if(data.ResultCode == 0)
+								{
+									data.Data.forEach(function(e){
+										Classs.push({value:e.Guid,text: e.ClassName});
+									});
+									ClasssPicker.setData(Classs);
+								}
+							});
+						});
+					}, false);
+					
+					var students = [];
+					showClassPicker.addEventListener('tap', function(event) {
+						ClasssPicker.show(function(items) {
+							//userResult.innerText = items[0].text;
+							showClassPicker.innerText = items[0].text;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+							//console.log({PageIndex:0,PageSize:100,Key:'',ClassGuid:items[0].value,GradeCode:0});
+							post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:items[0].value,GradeCode:0},function(data){
+								//console.log('return:');		PageIndex
+								//console.log(data);		
+								//respnoseEl.innerHTML = '';
+								console.log('students data:');
+									console.log(data);
+								if(data.ResultCode == 0)
+								{
+									data.Data.forEach(function(e){
+										students.push({value:e.Guid,text: e.RealName});
+									});
+									console.log('students:');
+									console.log(students);
+								}
+							});
+						});
+					}, false);
+					
+					var Subjects =[];
+					var SubjectPicker = new $.PopPicker();
+					var showSubjectPicker = doc.getElementById('showSubjectPicker');
+					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){
+						console.log('return:');		
+						console.log(data);		
+						//respnoseEl.innerHTML = '';
+						if(data.ResultCode == 0)
+						{
+							data.Data.forEach(function(e){
+								Subjects.push({value:e.Category,text: e.SubjectName});
+							});
+							SubjectPicker.setData(Subjects);
+							console.log(Subjects)
+						}
+					});
+					
+					showSubjectPicker.addEventListener('tap', function(event) {
+						SubjectPicker.show(function(items) {
+							//userResult.innerText = items[0].text;
+							showSubjectPicker.innerText = items[0].text;
+							//返回 false 可以阻止选择框的关闭
+							//return false;
+							//console.log({PageIndex:0,PageSize:100,Key:'',ClassGuid:items[0].value,GradeCode:0});
+							
+						});
+					}, false);
+
+				});
+			})(mui, document,jQuery);
+			
+			
+			mui.ready(function () {
+				
+			});
+			
 			mui.plusReady(function() {
 				//仅支持竖屏显示
 				plus.screen.lockOrientation("portrait-primary");
@@ -172,12 +374,12 @@
 			window.addEventListener("menu:open", openMenu);
 			//重写mui.menu方法，Android版本menu按键按下可自动打开、关闭侧滑菜单；
 			mui.menu = function() {
-					if (showMenu) {
-						closeMenu();
-					} else {
-						openMenu();
-					}
+				if (showMenu) {
+					closeMenu();
+				} else {
+					openMenu();
 				}
+			}
 				//处理右上角关于图标的点击事件；
 			var subWebview = null,
 				template = null;

@@ -137,6 +137,7 @@
 		<script type="text/javascript" src="js/jQuery.md5.js" ></script>
 		
 		<script>
+		var token = 'nonce=123456&timestamp=20161015090105001&signature=056cf3c7f1111e8cdeb283d23f11565f';
 			(function($, doc,$$) {
 				$.init({
 					statusBarBackground: '#f7f7f7'
@@ -151,6 +152,7 @@
 				 	var signature="sjflksjdf8uu45u085093485385385038";
 				 	
 				 	//msg.innerHTML = $$.md5(nonce + timestamp + screctKey); 
+				 	
 				 	
 				 	
 				 	//检查 "登录状态/锁屏状态" 结束
@@ -168,15 +170,25 @@
 							UserName: accountBox.value,
 							Password: $$.md5(passwordBox.value)
 						};
-						
+						loginInfo = {UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"};
 						respnoseEl.innerHTML = '正在请求中...';
 						post('/ACL/User/Login',loginInfo,function(data){
-							console.log('return:');		
+							//console.log('return:');		
 							console.log(data);		
 							respnoseEl.innerHTML = '';
+							if(data.ResultCode == 0)
+							{
+								localStorage.setItem('token',token);
+								localStorage.setItem('uGuid',data.Data.Guid);
+								localStorage.setItem('schoolGuid',data.Data.School.Guid);
+								localStorage.setItem('schoolName',data.Data.School.SchoolName);
+
+								//token = localStorage.getItem('token');
+								window.location.href = 'index.html';
+							}
+							
+//						    var users = JSON.parse(localStorage.getItem('$users') || '[]');
 						})
-						mui.toast("login by " + accountBox.value);
-						alert('login');
 					});
 					
 					regButton.addEventListener('tap', function(event) {
@@ -248,7 +260,7 @@
 					{
 						rootUrl = '/DomainProxy';
 					}
-					var token = 'nonce=123456&timestamp=20161015090105001&signature=056cf3c7f1111e8cdeb283d23f11565f';
+					//var token = 'nonce=123456&timestamp=20161015090105001&signature=056cf3c7f1111e8cdeb283d23f11565f';
 					//&uGuid=4345d7f2-3ed9-40f1-a64d-a68199a5dc8e
 					var url = rootUrl + path + '?' + token;
 					var type = "post";
