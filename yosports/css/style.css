@@ -4,6 +4,6 @@ body {
 	height: 100%;
 	margin: 0px;
 	padding: 0px;
+	margin: 0 auto;
+	max-width: 980px;
 }
-.mui-content{height: 100%;max-width: 768px;margin: 0 auto;}
-.mui-bar{max-width: 768px;margin: 0 auto;}
