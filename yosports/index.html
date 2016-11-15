@@ -40,40 +40,39 @@
 								<button id="showClassPicker" class="mui-btn mui-btn-block" type="button">选择班级</button>
 								<button id="showSexPicker" class="mui-btn mui-btn-block" type="button">选择性别</button>
 								<button id="showStudentPicker" class="mui-btn mui-btn-block" type="button">选择学生</button>
-								<button id="showSubjectPicker" class="mui-btn mui-btn-block" type="button">选择项目</button>
-								
+								<button id="showTeacherPicker" class="mui-btn mui-btn-block" type="button">选择任课老师</button>
 								<div class="mui-input-row">
 									<label>身高</label>
-									<input id="txt_Score1" type="text" placeholder="厘米">
+									<input id="txt_height" type="text" placeholder="厘米">
 								</div>
 								<div class="mui-input-row">
-									<label>体重指数（BMI）</label>
-									<input id="txt_Score1" type="text" placeholder="公斤/米^2">
+									<label>体重</label>
+									<input id="txt_weight" type="text" placeholder="公斤">
 								</div>
 								<div class="mui-input-row">
 									<label>肺活量</label>
-									<input id="txt_Score2" type="text" placeholder="毫升">
+									<input id="txt_capacity" type="text" placeholder="毫升">
 								</div>
 								
 								<div class="mui-input-row">
 									<label>1000(800)米跑</label>
-									<input id="txt_longrun" type="text" placeholder="分.秒">
+									<input id="txt_longRun" type="text" placeholder="分.秒">
 								</div>
 								<div class="mui-input-row">
 									<label>50米跑</label>
-									<input id="txt_Score" type="text" placeholder="秒">
+									<input id="txt_shortRun" type="text" placeholder="秒">
 								</div>
 								<div class="mui-input-row">
 									<label>立定跳远</label>
-									<input id="txt_Score" type="text" placeholder="厘米">
+									<input id="txt_jump" type="text" placeholder="厘米">
 								</div>
 								<div class="mui-input-row">
 									<label>坐位体前屈</label>
-									<input id="txt_Score" type="text" placeholder="厘米">
+									<input id="txt_font" type="text" placeholder="厘米">
 								</div>
 								<div class="mui-input-row">
 									<label>引体向上/仰卧起坐</label>
-									<input id="txt_Score" type="text" placeholder="次">
+									<input id="txt_up" type="text" placeholder="次">
 								</div>
 								
 								<div class="mui-button-row">
@@ -146,6 +145,7 @@
 					var mySex;
 					var mySubject;
 					var StudentNo;
+					var TeacherID;
 					
 					var token = localStorage.getItem('token');
 					var uGuid = localStorage.getItem('uGuid');
@@ -161,35 +161,83 @@
 						return;
 					}
 					
+
+					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
+						console.log(data);
+					});
+								
 					var txt_longrun = doc.getElementById("txt_longrun");
 					
 					var save = doc.getElementById("save");
+					var txt_height = doc.getElementById("txt_height");
+					var txt_weight = doc.getElementById("txt_weight");
+					var txt_capacity = doc.getElementById("txt_capacity");
+					var txt_longRun = doc.getElementById("txt_longRun");
+					var txt_shortRun = doc.getElementById("txt_shortRun");
+					var txt_jump = doc.getElementById("txt_jump");
+					var txt_font = doc.getElementById("txt_font");
+					var txt_up = doc.getElementById("txt_up");
+					
 					save.addEventListener('tap', function(event) {
-						//{UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"}
+						
+						if(txt_height.value != '' && txt_height.value != '')
+						{
+							var bmi = parseInt(txt_height.value)/(parseInt(txt_height.value) * parseInt(txt_height.value));
+							SaveAchievement(1,bmi);
+						}
+						if(txt_capacity.value != '')
+						{
+							SaveAchievement(2,parseInt(txt_capacity.value));//
+						}
+						if(txt_longRun.value != '' && mySex == 1)
+						{
+							SaveAchievement(7,parseFloat(txt_longRun.value));//
+						}
+						if(txt_longRun.value != '' && mySex == 2)
+						{
+							SaveAchievement(23,parseFloat(txt_longRun.value));//
+						}
+						if(txt_shortRun.value != '')
+						{
+							SaveAchievement(14,parseFloat(txt_shortRun.value));//
+						}
+						if(txt_jump.value != '')
+						{
+							SaveAchievement(15,parseFloat(txt_jump.value));//
+						}
+						if(txt_font.value != '')
+						{
+							SaveAchievement(13,parseFloat(txt_font.value));//
+						}
+
+						if(txt_up.value != '' && mySex == 1)
+						{
+							SaveAchievement(11,parseFloat(txt_longRun.value));//
+						}
+						if(txt_up.value != '' && mySex == 2)
+						{
+							SaveAchievement(21,parseFloat(txt_longRun.value));//
+						}
+						
+					});
+					
+					function SaveAchievement(SubjectID,myValue){
 						var markInfo = {
 							ArchiveGuid: myArchiveId,
 							SchoolGuid: schoolGuid,
 							StudentNo: StudentNo,
-							SubjectID: 7,
-							Achievement: txt_longrun.value
+							SubjectID: SubjectID,
+							Achievement: myValue,
+							TeacherID:TeacherID
 						};	
-					  	console.log(markInfo)
-						//ArchiveGuid	string	N	档案编号(guid)
-						//SchoolGuid	string	N	学校Guid
-						//StudentNo	string	N	学生身份证号
-						//SubjectID	int	N	项目编号
-						//Achievement	decimal	N	成绩
 						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){
 							//console.log('return:');		
 							console.log(data);		
-							//respnoseEl.innerHTML = '';
-							if(data.ResultCode == 0)
-							{								
-								alert('ok');
-							}
-							
+							//respnoseEl.innerHTML = '';							
+							return data.ResultCode;;
 						})
-					});
+						return 1;
+					}
 					
 					//普通示例
 					var sexPicker = new $.PopPicker();
@@ -220,25 +268,24 @@
 					GetArchive();
 					GetClasses();
 
-					var Subjects =[];
-					var SubjectPicker = new $.PopPicker();
-					var showSubjectPicker = doc.getElementById('showSubjectPicker');
-					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
+					var Teachers =[];
+					var TeacherPicker = new $.PopPicker();
+					var showTeacherPicker  = doc.getElementById('showTeacherPicker');
+					post(token,uGuid,'/APP/Teacher/GetList',{PageIndex:0,PageSize:10,Expired:false},function(data){	
 						//respnoseEl.innerHTML = '';
 						if(data.ResultCode == 0)
 						{
 							data.Data.forEach(function(e){
-								//if(e.Sex == mySex)
-									Subjects.push({value:e.Category,text: e.SubjectName});
+								Teachers.push({value:e.ID,text:e.RealName});
 							});
-							SubjectPicker.setData(Subjects);
-							console.log(data.Data)
+							TeacherPicker.setData(Teachers);
 						}
 					});
 					
-					showSubjectPicker.addEventListener('tap', function(event) {
-						SubjectPicker.show(function(items) {
-							showSubjectPicker.innerText = items[0].text;
+					showTeacherPicker.addEventListener('tap', function(event) {
+						TeacherPicker.show(function(items) {
+							showTeacherPicker.innerText = items[0].text;
+							TeacherID = items[0].value;
 						});
 					}, false);
 
@@ -291,7 +338,7 @@
 					
 					function GetStudents(classGuid,sex){
 						students.splice(0,students.length);
-						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField='RealName',SortDir='asc'},function(data){
+						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField:'RealName',SortDir:'asc'},function(data){
 							if(data.ResultCode == 0)
 							{
 								data.Data.forEach(function(e){
