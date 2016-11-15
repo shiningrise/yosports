@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>学生体质健康测评数据上报系统</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="css/mui.min.css">
+		<link href="css/mui.picker.css" rel="stylesheet" />
+		<link href="css/mui.poppicker.css" rel="stylesheet" />
+		<link href="css/style.css" rel="stylesheet" />	
+		<style>
+			.mui-input-row label {
+				width: 60%;
+				text-align: right;
+			}
+			.mui-input-row label~input,
+			.mui-input-row label~select,
+			.mui-input-row label~textarea {
+				width: 40%;
+			}
+		</style>
+	</head>
+
+	<body>
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-icon-bars mui-pull-left mui-plus-visible"></a>
+			<a id="info" class="mui-icon mui-icon-info-filled mui-pull-right" style="color: #999;"></a>
+			<h1 class="mui-title">按学生录</h1>
+		</header>
+		
+		<div class="mui-content">
+			<div class="mui-card">
+				<ul class="mui-table-view">
+					<li class="mui-table-view-cell">
+						<div class="mui-collapse-content">
+							<form class="mui-input-group">
+								<div class="mui-input-row">
+									<input id="txt_schoolName" type="text" placeholder="学校名称">
+								</div>
+								<div class="mui-input-row">
+									<input id="txt_Archive" type="text" placeholder="测试档案">
+								</div>
+								<button id="showClassPicker" class="mui-btn mui-btn-block" type="button">选择班级</button>
+								<button id="showSexPicker" class="mui-btn mui-btn-block" type="button">选择性别</button>
+								<button id="showStudentPicker" class="mui-btn mui-btn-block" type="button">选择学生</button>
+								<button id="showTeacherPicker" class="mui-btn mui-btn-block" type="button">选择任课老师</button>
+								<div class="mui-input-row">
+									<label>身高(单位：厘米)</label>
+									<input id="txt_height" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>体重(单位：公斤)</label>
+									<input id="txt_weight" type="text" placeholder="公斤">
+								</div>
+								<div class="mui-input-row">
+									<label>体重指数（BMI）</label>
+									<input id="txt_weight1" type="text" placeholder="公斤/米^2" readonly="true">
+								</div>
+								
+								<div class="mui-input-row">
+									<label>肺活量(单位：毫升)</label>
+									<input id="txt_capacity" type="text" placeholder="毫升">
+								</div>
+								
+								<div class="mui-input-row">
+									<label>1000(800)米跑(单位：分.秒)</label>
+									<input id="txt_longRun" type="text" placeholder="分.秒">
+								</div>
+								<div class="mui-input-row">
+									<label>50米跑(单位：秒)</label>
+									<input id="txt_shortRun" type="text" placeholder="秒">
+								</div>
+								<div class="mui-input-row">
+									<label>立定跳远(单位：厘米)</label>
+									<input id="txt_jump" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>坐位体前屈(单位：厘米)</label>
+									<input id="txt_font" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>引体向上/仰卧起坐(单位：次)</label>
+									<input id="txt_up" type="text" placeholder="次">
+								</div>
+								
+								<div class="mui-button-row">
+									<button id="save" class="mui-btn mui-btn-primary mui-btn-block" type="button" onclick="return false;">保存</button>&nbsp;&nbsp;
+								</div>
+							</form>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<script src="js/mui.min.js"></script>
+		<script src="js/mui.picker.js"></script>
+		<script src="js/mui.poppicker.js"></script>
+		<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-2.1.1.min.js"></script>
+		<script>
+			var menu = null,
+				main = null;
+			var showMenu = false;
+			mui.init({
+				swipeBack: false,
+				statusBarBackground: '#f7f7f7',
+				gestureConfig: {
+					doubletap: true
+				}
+//				subpages: [{
+//					id: 'list',
+//					url: 'list.html',
+//					styles: {
+//						top: '45px',
+//						bottom: 0,
+//						bounce: 'vertical'
+//					}
+//				}]
+			});
+			
+			var post = function(token,uGuid,path,data,success){
+					var rootUrl = 'http://service.yosports.cn';
+					if (window.plus) 
+					{
+						rootUrl = 'http://service.yosports.cn';
+					}
+					else
+					{
+						rootUrl = '/DomainProxy';
+					}
+					//var token = 'nonce=123456&timestamp=20161015090105001&signature=056cf3c7f1111e8cdeb283d23f11565f';
+					//&uGuid=4345d7f2-3ed9-40f1-a64d-a68199a5dc8e
+					var url = rootUrl + path + '?' + token + '&uGuid='+uGuid
+					var type = "post";
+					var dataType = "json";
+					
+					if (type === 'get') {
+						if (dataType === 'json') {
+							mui.getJSON(url, data, success);
+						} else {
+							mui.get(url, data, success, dataType);
+						}
+					} else if (type === 'post') {
+						mui.post(url, data, success, dataType);
+					}
+				};
+			
+			(function($, doc,$$) {
+				$.init();
+				$.ready(function() {
+					var myArchiveId;
+					var myClassGuid;
+					var mySex;
+					var mySubject;
+					var StudentNo;
+					var TeacherID;
+					
+					var token = localStorage.getItem('token');
+					var uGuid = localStorage.getItem('uGuid');
+					var schoolGuid = localStorage.getItem('schoolGuid');
+					var schoolName = localStorage.getItem('schoolName');
+					
+					var txt_schoolName = doc.getElementById("txt_schoolName");
+					txt_schoolName.value = schoolName;
+					
+					if(token == null || uGuid == null || schoolGuid == null)
+					{
+						window.location.href = 'login.html';
+						return;
+					}
+
+					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
+						console.log(data);
+					});
+					
+					var txt_longrun = doc.getElementById("txt_longrun");
+					
+					var save = doc.getElementById("save");
+					var txt_weight1 = doc.getElementById("txt_weight1");
+					var txt_height = doc.getElementById("txt_height");
+					var txt_weight = doc.getElementById("txt_weight");
+					var txt_capacity = doc.getElementById("txt_capacity");
+					var txt_longRun = doc.getElementById("txt_longRun");
+					var txt_shortRun = doc.getElementById("txt_shortRun");
+					var txt_jump = doc.getElementById("txt_jump");
+					var txt_font = doc.getElementById("txt_font");
+					var txt_up = doc.getElementById("txt_up");
+					
+					save.addEventListener('tap', function(event) {
+						if(txt_height.value != '' && txt_height.value != '')
+						{
+							var bmi = parseInt(txt_height.value)/(parseInt(txt_height.value) * parseInt(txt_height.value));
+							SaveAchievement(1,bmi);
+						}
+						if(txt_capacity.value != '')
+						{
+							SaveAchievement(4,parseInt(txt_capacity.value));//
+						}
+						if(txt_longRun.value != '' && mySex == 1)
+						{
+							SaveAchievement(7,parseFloat(txt_longRun.value));//
+						}
+						if(txt_longRun.value != '' && mySex == 2)
+						{
+							SaveAchievement(23,parseFloat(txt_longRun.value));//
+						}
+						if(txt_shortRun.value != '')
+						{
+							SaveAchievement(14,parseFloat(txt_shortRun.value));//
+						}
+						if(txt_jump.value != '')
+						{
+							SaveAchievement(15,parseFloat(txt_jump.value));//
+						}
+						if(txt_font.value != '')
+						{
+							SaveAchievement(13,parseFloat(txt_font.value));//
+						}
+
+						if(txt_up.value != '' && mySex == 1)
+						{
+							SaveAchievement(11,parseInt(txt_up.value));//
+						}
+						if(txt_up.value != '' && mySex == 2)
+						{
+							SaveAchievement(21,parseInt(txt_up.value));//
+						}
+						//console.log(msg);
+						alert('over');
+						loadData(StudentNo)
+					});
+					
+					function SaveAchievement(SubjectID,myValue){
+						var markInfo = {
+							ArchiveGuid: myArchiveId,
+							SchoolGuid: schoolGuid,
+							StudentNo: StudentNo,
+							SubjectID: SubjectID,
+							Achievement: myValue,
+							TeacherID:TeacherID
+						};	
+						console.log(markInfo);
+						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){		
+							//respnoseEl.innerHTML = '';					
+							if(data.ResultCode != 0)
+							{
+								alert(data.Message);
+								console.log(data);
+							}
+						})
+					}
+					
+					//普通示例
+					var sexPicker = new $.PopPicker();
+					sexPicker.setData([{
+						value: '1',
+						text: '男'
+					}, {
+						value: '2',
+						text: '女'
+					}]);
+					
+					var showSexPicker = doc.getElementById('showSexPicker');
+					showSexPicker.addEventListener('tap', function(event) {
+						sexPicker.show(function(items) {
+							showSexPicker.innerText = items[0].text;
+							mySex = items[0].value;
+							if(mySex != null && myClassGuid != null)
+								GetStudents(myClassGuid,mySex);
+						});
+					}, false);
+					
+					var ClasssPicker = new $.PopPicker();
+					var Classs = [];	
+					
+					var StudentPicker = new $.PopPicker();
+					var students = [];
+					
+					GetArchive();
+					GetClasses();
+
+					var Teachers =[];
+					var TeacherPicker = new $.PopPicker();
+					var showTeacherPicker  = doc.getElementById('showTeacherPicker');
+					post(token,uGuid,'/APP/Teacher/GetList',{PageIndex:0,PageSize:10,Expired:false},function(data){	
+						//respnoseEl.innerHTML = '';
+						if(data.ResultCode == 0)
+						{
+							data.Data.forEach(function(e){
+								Teachers.push({value:e.ID,text:e.RealName});
+							});
+							TeacherPicker.setData(Teachers);
+						}
+					});
+					
+					showTeacherPicker.addEventListener('tap', function(event) {
+						TeacherPicker.show(function(items) {
+							showTeacherPicker.innerText = items[0].text;
+							TeacherID = items[0].value;
+						});
+					}, false);
+
+					var showStudentPicker = doc.getElementById("showStudentPicker");
+					showStudentPicker.addEventListener('tap', function(event) {
+						StudentPicker.show(function(items) {
+							showStudentPicker.innerText = items[0].text;
+							StudentNo = items[0].value;
+							loadData(StudentNo);
+						});
+					}, false);
+					
+					function GetArchive(){
+						var txt_Archive = doc.getElementById("txt_Archive");
+						var ArchivePicker = new $.PopPicker();
+						var Archives =[];
+						post(token,uGuid,'/APP/Archive/GetListForSchool',{PageIndex:0,PageSize:10,Expired:false},function(data){
+							if(data.ResultCode == 0)
+							{
+								data.Data.forEach(function(e){
+									Archives.push({value:e.Guid,text: e.Title});
+								});
+								myArchiveId = Archives[0].value;
+								txt_Archive.value = Archives[0].text;
+							}
+						});
+					}
+					
+					function GetClasses(){
+						post(token,uGuid,'/APP/Class/GetList',{PageIndex:0,PageSize:100,Key:'',GradeCode:''},function(data){
+								if(data.ResultCode == 0)
+								{
+									data.Data.forEach(function(e){
+										Classs.push({value:e.Guid,text: e.ClassName});
+									});
+									ClasssPicker.setData(Classs);
+								}
+						});
+						
+						showClassPicker.addEventListener('tap', function(event) {
+							ClasssPicker.show(function(items) {
+								//userResult.innerText = items[0].text;
+								showClassPicker.innerText = items[0].text;
+								myClassGuid = items[0].value;
+								if(mySex != null && myClassGuid != null)
+									GetStudents(myClassGuid,mySex);
+							});
+						}, false);
+					}
+					
+					function GetStudents(classGuid,sex){
+						students.splice(0,students.length);
+						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField:'RealName',SortDir:'asc'},function(data){
+							if(data.ResultCode == 0)
+							{
+								data.Data.forEach(function(e){
+									if(e.Sex == sex )
+										students.push({value:e.StudentNo,text: e.RealName});
+									else if(e.Sex == 0)
+										students.push({value:e.StudentNo,text: e.RealName});
+								});
+								StudentPicker.setData(students);
+							}
+						});
+					}
+					function loadData(studentNo){
+						var inputInfo = {AGuid:myArchiveId,StudentNo:studentNo};
+						console.log(inputInfo);
+						post(token,uGuid,'/APP/Mark/GetList',inputInfo,function(data){
+							if(data.ResultCode == 0)
+							{
+								txt_capacity.value = '';
+								txt_longRun.value = '';
+								txt_shortRun.value = '';
+								txt_jump.value = '';
+								txt_font.value = '';
+								txt_up.value = '';
+								
+								data.Data.forEach(function(e){
+									if(e.SubjectID == 1)
+									{
+										txt_weight1.value = e.Score + '  ' + e.Description;
+									}
+									else if(e.SubjectID == 4)
+									{
+										txt_capacity.value = e.StrMark;
+									}
+									else if(e.SubjectID == 7 && e.SubjectID == 23)
+									{
+										txt_longRun.value = e.StrMark;
+									}
+									else if(e.SubjectID == 14)
+									{
+										txt_shortRun.value = e.StrMark;
+									}
+									else if(e.SubjectID == 15)
+									{
+										txt_jump.value = e.StrMark;
+									}
+									else if(e.SubjectID == 13)
+									{
+										txt_font.value = e.StrMark;
+									}
+									else if(e.SubjectID == 11)
+									{
+										txt_up.value = e.StrMark;
+									}
+								});
+							}
+							console.log(data);
+						});
+					}
+					
+				});
+			})(mui, document,jQuery);
+			
+			
+			mui.ready(function () {
+				
+			});
+			
+			mui.plusReady(function() {
+				//仅支持竖屏显示
+				plus.screen.lockOrientation("portrait-primary");
+				main = plus.webview.currentWebview();
+				main.addEventListener('maskClick', closeMenu);
+				//处理侧滑导航，为了避免和子页面初始化等竞争资源，延迟加载侧滑页面；
+				setTimeout(function() {
+					menu = mui.preload({
+						id: 'index-menu',
+						url: 'index-menu.html',
+						styles: {
+							left: 0,
+							width: '70%',
+							zindex: -1
+						},
+						show: {
+							aniShow: 'none'
+						}
+					});
+				}, 200);
+			});
+			var isInTransition = false;
+			/**
+			 * 显示侧滑菜单
+			 */
+			function openMenu() {
+				if (isInTransition) {
+					return;
+				}
+				if (!showMenu) {
+					//侧滑菜单处于隐藏状态，则立即显示出来；
+					isInTransition = true;
+					menu.setStyle({
+						mask: 'rgba(0,0,0,0)'
+					}); //menu设置透明遮罩防止点击
+					menu.show('none', 0, function() {
+						//主窗体开始侧滑并显示遮罩
+						main.setStyle({
+							mask: 'rgba(0,0,0,0.4)',
+							left: '70%',
+							transition: {
+								duration: 150
+							}
+						});
+						mui.later(function() {
+							isInTransition = false;
+							menu.setStyle({
+								mask: "none"
+							}); //移除menu的mask
+						}, 160);
+						showMenu = true;
+					});
+				}
+			};
+			/**
+			 * 关闭菜单
+			 */
+			function closeMenu() {
+				if (isInTransition) {
+					return;
+				}
+				if (showMenu) {
+					//关闭遮罩；
+					//主窗体开始侧滑；
+					isInTransition = true;
+					main.setStyle({
+						mask: 'none',
+						left: '0',
+						transition: {
+							duration: 200
+						}
+					});
+					showMenu = false;
+					//等动画结束后，隐藏菜单webview，节省资源；
+					mui.later(function() {
+						isInTransition = false;
+						menu.hide();
+					}, 300);
+				}
+			};
+			//点击左上角侧滑图标，打开侧滑菜单；
+			document.querySelector('.mui-icon-bars').addEventListener('tap', function(e) {
+				if (showMenu) {
+					closeMenu();
+				} else {
+					openMenu();
+				}
+			});
+			//敲击顶部导航，内容区回到顶部
+			document.querySelector('header').addEventListener('doubletap', function() {
+				main.children()[0].evalJS('mui.scrollTo(0, 100)');
+			});
+			//主界面向右滑动，若菜单未显示，则显示菜单；否则不做任何操作
+			window.addEventListener("swiperight", openMenu);
+			//主界面向左滑动，若菜单已显示，则关闭菜单；否则，不做任何操作；
+			window.addEventListener("swipeleft", closeMenu);
+			//侧滑菜单触发关闭菜单命令
+			window.addEventListener("menu:close", closeMenu);
+			window.addEventListener("menu:open", openMenu);
+			//重写mui.menu方法，Android版本menu按键按下可自动打开、关闭侧滑菜单；
+			mui.menu = function() {
+				if (showMenu) {
+					closeMenu();
+				} else {
+					openMenu();
+				}
+			}
+				//处理右上角关于图标的点击事件；
+			var subWebview = null,
+				template = null;
+			document.getElementById('info').addEventListener('tap', function() {
+				if (!mui.os.plus) {
+					mui.openWindow({
+						url: "examples/info.html",
+						id: "info",
+						show: {
+							aniShow: 'zoom-fade-out',
+							duration: 300
+						}
+					});
+					return;
+				}
+				if (subWebview == null) {
+					//获取共用父窗体
+					template = plus.webview.getWebviewById("default-main");
+				}
+				if (template) {
+					subWebview = template.children()[0];
+					subWebview.loadURL('examples/info.html');
+					//修改共用父模板的标题
+					mui.fire(template, 'updateHeader', {
+						title: '关于',
+						showMenu: false
+					});
+					template.show('slide-in-right', 150);
+				}
+				//				mui.openWindow({
+				//					url:"examples/info.html",
+				//					id:"info",
+				//					show:{
+				//						aniShow:'zoom-fade-out',
+				//						duration:300
+				//					}
+				//				});
+			});
+			//首页返回键处理
+			//处理逻辑：1秒内，连续两次按返回键，则退出应用；
+			var first = null;
+			mui.back = function() {
+				if (showMenu) {
+					closeMenu();
+				} else {
+					//首次按键，提示‘再按一次退出应用’
+					if (!first) {
+						first = new Date().getTime();
+						mui.toast('再按一次退出应用');
+						setTimeout(function() {
+							first = null;
+						}, 1000);
+					} else {
+						if (new Date().getTime() - first < 1000) {
+							plus.runtime.quit();
+						}
+					}
+				}
+			};
+		</script>
+	</body>
+
+</html>
