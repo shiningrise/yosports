@@ -372,6 +372,7 @@
 						post(token,uGuid,'/APP/Mark/GetList',inputInfo,function(data){
 							if(data.ResultCode == 0)
 							{
+								txt_weight1.value = '';
 								txt_capacity.value = '';
 								txt_longRun.value = '';
 								txt_shortRun.value = '';
@@ -388,7 +389,7 @@
 									{
 										txt_capacity.value = e.StrMark;
 									}
-									else if(e.SubjectID == 7 && e.SubjectID == 23)
+									else if(e.SubjectID == 7 || e.SubjectID == 23)
 									{
 										txt_longRun.value = e.StrMark;
 									}
@@ -404,7 +405,7 @@
 									{
 										txt_font.value = e.StrMark;
 									}
-									else if(e.SubjectID == 11)
+									else if(e.SubjectID == 11 || e.SubjectID == 21 )
 									{
 										txt_up.value = e.StrMark;
 									}
