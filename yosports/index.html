@@ -160,7 +160,6 @@
 						window.location.href = 'login.html';
 						return;
 					}
-					
 
 					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
 						console.log(data);
@@ -178,8 +177,8 @@
 					var txt_font = doc.getElementById("txt_font");
 					var txt_up = doc.getElementById("txt_up");
 					
+					var count = 0;
 					save.addEventListener('tap', function(event) {
-						
 						if(txt_height.value != '' && txt_height.value != '')
 						{
 							var bmi = parseInt(txt_height.value)/(parseInt(txt_height.value) * parseInt(txt_height.value));
@@ -218,7 +217,9 @@
 						{
 							SaveAchievement(21,parseFloat(txt_longRun.value));//
 						}
-						
+						//console.log(msg);
+						alert('over');
+						count = 0;
 					});
 					
 					function SaveAchievement(SubjectID,myValue){
@@ -230,13 +231,17 @@
 							Achievement: myValue,
 							TeacherID:TeacherID
 						};	
-						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){
-							//console.log('return:');		
-							console.log(data);		
-							//respnoseEl.innerHTML = '';							
-							return data.ResultCode;;
+						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){		
+							//respnoseEl.innerHTML = '';					
+							if(data.ResultCode == 0)
+							{
+								count++;
+							}
+							else
+							{
+								alert(data.Message);
+							}
 						})
-						return 1;
 					}
 					
 					//普通示例
