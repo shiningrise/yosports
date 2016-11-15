@@ -40,17 +40,44 @@
 								<button id="showClassPicker" class="mui-btn mui-btn-block" type="button">选择班级</button>
 								<button id="showSexPicker" class="mui-btn mui-btn-block" type="button">选择性别</button>
 								<button id="showStudentPicker" class="mui-btn mui-btn-block" type="button">选择学生</button>
-								
 								<button id="showSubjectPicker" class="mui-btn mui-btn-block" type="button">选择项目</button>
 								
 								<div class="mui-input-row">
-									<label>学校</label>
-									<input id="txt_Score" type="text" placeholder="成绩">
+									<label>身高</label>
+									<input id="txt_Score1" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>体重指数（BMI）</label>
+									<input id="txt_Score1" type="text" placeholder="公斤/米^2">
+								</div>
+								<div class="mui-input-row">
+									<label>肺活量</label>
+									<input id="txt_Score2" type="text" placeholder="毫升">
+								</div>
+								
+								<div class="mui-input-row">
+									<label>1000(800)米跑</label>
+									<input id="txt_longrun" type="text" placeholder="分.秒">
+								</div>
+								<div class="mui-input-row">
+									<label>50米跑</label>
+									<input id="txt_Score" type="text" placeholder="秒">
+								</div>
+								<div class="mui-input-row">
+									<label>立定跳远</label>
+									<input id="txt_Score" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>坐位体前屈</label>
+									<input id="txt_Score" type="text" placeholder="厘米">
+								</div>
+								<div class="mui-input-row">
+									<label>引体向上/仰卧起坐</label>
+									<input id="txt_Score" type="text" placeholder="次">
 								</div>
 								
 								<div class="mui-button-row">
-									<button class="mui-btn mui-btn-primary" type="button" onclick="return false;">确认</button>&nbsp;&nbsp;
-									<button class="mui-btn mui-btn-primary" type="button" onclick="return false;">取消</button>
+									<button id="save" class="mui-btn mui-btn-primary mui-btn-block" type="button" onclick="return false;">保存</button>&nbsp;&nbsp;
 								</div>
 							</form>
 						</div>
@@ -114,8 +141,11 @@
 			(function($, doc,$$) {
 				$.init();
 				$.ready(function() {
-					var myClassGuid;
 					var myArchiveId;
+					var myClassGuid;
+					var mySex;
+					var mySubject;
+					var StudentNo;
 					
 					var token = localStorage.getItem('token');
 					var uGuid = localStorage.getItem('uGuid');
@@ -131,12 +161,39 @@
 						return;
 					}
 					
+					var txt_longrun = doc.getElementById("txt_longrun");
+					
+					var save = doc.getElementById("save");
+					save.addEventListener('tap', function(event) {
+						//{UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"}
+						var markInfo = {
+							ArchiveGuid: myArchiveId,
+							SchoolGuid: schoolGuid,
+							StudentNo: StudentNo,
+							SubjectID: 7,
+							Achievement: txt_longrun.value
+						};	
+					
+						//ArchiveGuid	string	N	档案编号(guid)
+						//SchoolGuid	string	N	学校Guid
+						//StudentNo	string	N	学生身份证号
+						//SubjectID	int	N	项目编号
+						//Achievement	decimal	N	成绩
+						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){
+							//console.log('return:');		
+							console.log(data);		
+							//respnoseEl.innerHTML = '';
+							if(data.ResultCode == 0)
+							{								
+								alert('ok');
+							}
+							
+						})
+					});
+					
 					//普通示例
 					var sexPicker = new $.PopPicker();
 					sexPicker.setData([{
-						value: '0',
-						text: '请选择性别'
-					}, {
 						value: '1',
 						text: '男'
 					}, {
@@ -148,14 +205,11 @@
 					showSexPicker.addEventListener('tap', function(event) {
 						sexPicker.show(function(items) {
 							showSexPicker.innerText = items[0].text;
-							GetStudents(myClassGuid,showSexPicker.innerText);
-							//返回 false 可以阻止选择框的关闭
-							//return false;
+							mySex = items[0].value;
+							if(mySex != null && myClassGuid != null)
+								GetStudents(myClassGuid,mySex);
 						});
 					}, false);
-					
-					
-					//普通示例
 					
 					var ClasssPicker = new $.PopPicker();
 					var Classs = [];	
@@ -166,49 +220,33 @@
 					GetArchive();
 					GetClasses();
 
-					
 					var Subjects =[];
 					var SubjectPicker = new $.PopPicker();
 					var showSubjectPicker = doc.getElementById('showSubjectPicker');
-					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){
-						console.log('return:');		
-						console.log(data);		
+					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
 						//respnoseEl.innerHTML = '';
 						if(data.ResultCode == 0)
 						{
 							data.Data.forEach(function(e){
-								if(e.Sex == 1 && showSexPicker.innerText == '男')
-									Subjects.push({value:e.Category,text: e.SubjectName});
-								else if(e.Sex == 2 && showSexPicker.innerText == '女')
-									Subjects.push({value:e.Category,text: e.SubjectName});
-								else if(e.Sex == 0)
+								//if(e.Sex == mySex)
 									Subjects.push({value:e.Category,text: e.SubjectName});
 							});
 							SubjectPicker.setData(Subjects);
-							//console.log(Subjects)
+							console.log(data.Data)
 						}
 					});
 					
 					showSubjectPicker.addEventListener('tap', function(event) {
 						SubjectPicker.show(function(items) {
-							//userResult.innerText = items[0].text;
 							showSubjectPicker.innerText = items[0].text;
-							//返回 false 可以阻止选择框的关闭
-							//return false;
-							//console.log({PageIndex:0,PageSize:100,Key:'',ClassGuid:items[0].value,GradeCode:0});
-							
 						});
 					}, false);
 
 					var showStudentPicker = doc.getElementById("showStudentPicker");
 					showStudentPicker.addEventListener('tap', function(event) {
 						StudentPicker.show(function(items) {
-							//userResult.innerText = items[0].text;
 							showStudentPicker.innerText = items[0].text;
-							//返回 false 可以阻止选择框的关闭
-							//return false;
-							//console.log({PageIndex:0,PageSize:100,Key:'',ClassGuid:items[0].value,GradeCode:0});
-							
+							StudentNo = "";
 						});
 					}, false);
 					
@@ -223,7 +261,6 @@
 								data.Data.forEach(function(e){
 									Archives.push({value:e.Guid,text: e.Title});
 								});
-								console.log(Archives);
 								myArchiveId = Archives[0].value;
 								txt_Archive.value = Archives[0].text;
 							}
@@ -246,28 +283,23 @@
 								//userResult.innerText = items[0].text;
 								showClassPicker.innerText = items[0].text;
 								myClassGuid = items[0].value;
-								GetStudents(myClassGuid,showSexPicker.innerText);
+								if(mySex != null && myClassGuid != null)
+									GetStudents(myClassGuid,mySex);
 							});
 						}, false);
 					}
 					
 					function GetStudents(classGuid,sex){
+						students.splice(0,students.length);
 						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0},function(data){
-							//console.log('return:');		PageIndex
-							//console.log(data);		
-							//respnoseEl.innerHTML = '';
-							console.log('students data:');
-							//console.log(data);
 							if(data.ResultCode == 0)
 							{
 								data.Data.forEach(function(e){
-									//console.log(e);
-									if(e.Sex == 1 && sex == '男')
-										students.push({value:e.Guid,text: e.RealName});
-									else if(e.Sex == 2 && sex == '女')
-										students.push({value:e.Guid,text: e.RealName});
+									if(e.Sex == sex )
+										students.push({value:e.StudentNo,text: e.RealName});
+									else if(e.Sex == 0)
+										students.push({value:e.StudentNo,text: e.RealName});
 								});
-								//console.log('students:');
 								students.sort(sequence)
 								StudentPicker.setData(students);
 							}
