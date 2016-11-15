@@ -173,7 +173,7 @@
 							SubjectID: 7,
 							Achievement: txt_longrun.value
 						};	
-					
+					  	console.log(markInfo)
 						//ArchiveGuid	string	N	档案编号(guid)
 						//SchoolGuid	string	N	学校Guid
 						//StudentNo	string	N	学生身份证号
@@ -246,7 +246,7 @@
 					showStudentPicker.addEventListener('tap', function(event) {
 						StudentPicker.show(function(items) {
 							showStudentPicker.innerText = items[0].text;
-							StudentNo = "";
+							StudentNo = items[0].value;
 						});
 					}, false);
 					
@@ -291,7 +291,7 @@
 					
 					function GetStudents(classGuid,sex){
 						students.splice(0,students.length);
-						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0},function(data){
+						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField='RealName',SortDir='asc'},function(data){
 							if(data.ResultCode == 0)
 							{
 								data.Data.forEach(function(e){
@@ -300,7 +300,6 @@
 									else if(e.Sex == 0)
 										students.push({value:e.StudentNo,text: e.RealName});
 								});
-								students.sort(sequence)
 								StudentPicker.setData(students);
 							}
 						});

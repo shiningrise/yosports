@@ -150,11 +150,7 @@
 				 	var nonce="123456";
 				 	var timestamp="20161015090105001";
 				 	var signature="sjflksjdf8uu45u085093485385385038";
-				 	
-				 	//msg.innerHTML = $$.md5(nonce + timestamp + screctKey); 
-				 	
-				 	
-				 	
+
 				 	//检查 "登录状态/锁屏状态" 结束
 					var loginButton = doc.getElementById('login');
 					var accountBox = doc.getElementById('account');
@@ -170,15 +166,9 @@
 							UserName: accountBox.value,
 							Password: $$.md5(passwordBox.value)
 						};
-						console.log($$.md5(passwordBox.value));
-						//if(window.plus == null)
-						//	loginInfo = {UserName: "axc789", Password: "183f3364ed7564a9f5624da2421edeed"};
-						//loginInfo = {UserName: "kziqvmry", Password: "0659c7992e268962384eb17fafe88364"};
-						
+
 						respnoseEl.innerHTML = '正在请求中...';
-						post('/ACL/User/Login',loginInfo,function(data){
-							//console.log('return:');		
-							console.log(data);		
+						post('/ACL/User/Login',loginInfo,function(data){	
 							respnoseEl.innerHTML = '';
 							if(data.ResultCode == 0)
 							{
@@ -186,13 +176,8 @@
 								localStorage.setItem('uGuid',data.Data.Guid);
 								localStorage.setItem('schoolGuid',data.Data.School.Guid);
 								localStorage.setItem('schoolName',data.Data.School.SchoolName);
-
-								//token = localStorage.getItem('token');
-								//alert('ok');
 								window.location.href = 'index.html';
 							}
-							
-//						    var users = JSON.parse(localStorage.getItem('$users') || '[]');
 						})
 					});
 					
@@ -228,31 +213,6 @@
 							}
 						});
 					}, false);
-					
-//					btnTest.addEventListener('tap',function(event){
-//						var regInfo = regInfo || {};
-//						regInfo.account = regInfo.account || '123';
-//						regInfo.password = regInfo.password || '123';
-//						var users = JSON.parse(localStorage.getItem('$users') || '[]');
-//						users.push(regInfo);
-//		
-//						localStorage.setItem('$users', JSON.stringify(users));
-//						var users = JSON.parse(localStorage.getItem('$users') || '[]');
-//						//alert(users[0].account);
-//						ajax();
-//						
-//						//gettst2();
-//						
-//						if (window.plus) 
-//						{
-//							//alert('plus = true');
-//						}
-//						else
-//						{
-//							//alert('plus = false');
-//						}
-//					});
-
 				})
 				
 				var post = function(path,data,success){
@@ -286,13 +246,7 @@
 						mui.post(url, data, success, dataType);
 					}
 				}
-				
-				var success = function(data){
-					console.log(data);
-					alert("ok");
-					//respnoseEl.innerHTML = '';
-				}
-				
+								
 				$.plusReady(function() {
 					plus.screen.lockOrientation("portrait-primary");
 					var settings = app.getSettings();
