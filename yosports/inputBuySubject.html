@@ -29,7 +29,7 @@
 		<header class="mui-bar mui-bar-nav">
 			<a class="mui-icon mui-icon-bars mui-pull-left mui-plus-visible"></a>
 			<a id="info" class="mui-icon mui-icon-info-filled mui-pull-right" style="color: #999;"></a>
-			<h1 class="mui-title">按项目录(待开发)</h1>
+			<h1 class="mui-title">按项目录</h1>
 		</header>
 		
 		<div class="mui-content">
@@ -44,48 +44,18 @@
 								<div class="mui-input-row">
 									<input id="txt_Archive" type="text" placeholder="测试档案">
 								</div>
+								<button id="showTeacherPicker" class="mui-btn mui-btn-block" type="button">选择任课老师</button>
 								<button id="showClassPicker" class="mui-btn mui-btn-block" type="button">选择班级</button>
 								<button id="showSexPicker" class="mui-btn mui-btn-block" type="button">选择性别</button>
-								<button id="showStudentPicker" class="mui-btn mui-btn-block" type="button">选择学生</button>
-								<button id="showTeacherPicker" class="mui-btn mui-btn-block" type="button">选择任课老师</button>
-								<div class="mui-input-row">
-									<label>身高(单位：厘米)</label>
-									<input id="txt_height" type="text" placeholder="厘米">
-								</div>
-								<div class="mui-input-row">
-									<label>体重(单位：公斤)</label>
-									<input id="txt_weight" type="text" placeholder="公斤">
-								</div>
-								<div class="mui-input-row">
-									<label>体重指数（BMI）</label>
-									<input id="txt_weight1" type="text" placeholder="公斤/米^2" readonly="true">
+								<button id="showSubjectPicker" class="mui-btn mui-btn-block" type="button">选择项目</button>
+								
+								<div Id="Students">
+									<div class="mui-input-row">
+										<label>姓名</label>
+										<input id="txt_height" type="text" placeholder="成绩">
+									</div>
 								</div>
 								
-								<div class="mui-input-row">
-									<label>肺活量(单位：毫升)</label>
-									<input id="txt_capacity" type="text" placeholder="毫升">
-								</div>
-								
-								<div class="mui-input-row">
-									<label>1000(800)米跑(单位：分.秒)</label>
-									<input id="txt_longRun" type="text" placeholder="分.秒">
-								</div>
-								<div class="mui-input-row">
-									<label>50米跑(单位：秒)</label>
-									<input id="txt_shortRun" type="text" placeholder="秒">
-								</div>
-								<div class="mui-input-row">
-									<label>立定跳远(单位：厘米)</label>
-									<input id="txt_jump" type="text" placeholder="厘米">
-								</div>
-								<div class="mui-input-row">
-									<label>坐位体前屈(单位：厘米)</label>
-									<input id="txt_font" type="text" placeholder="厘米">
-								</div>
-								<div class="mui-input-row">
-									<label>引体向上/仰卧起坐(单位：次)</label>
-									<input id="txt_up" type="text" placeholder="次">
-								</div>
 								
 								<div class="mui-button-row">
 									<button id="save" class="mui-btn mui-btn-primary mui-btn-block" type="button" onclick="return false;">保存</button>&nbsp;&nbsp;
@@ -158,6 +128,7 @@
 					var mySubject;
 					var StudentNo;
 					var TeacherID;
+					var mySubjectId;
 					
 					var token = localStorage.getItem('token');
 					var uGuid = localStorage.getItem('uGuid');
@@ -172,66 +143,85 @@
 						window.location.href = 'login.html';
 						return;
 					}
-
-					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
-						console.log(data);
-					});
 					
-					var txt_longrun = doc.getElementById("txt_longrun");
+					
+					function GetArchive(){
+						var txt_Archive = doc.getElementById("txt_Archive");
+						var ArchivePicker = new $.PopPicker();
+						var Archives =[];
+						post(token,uGuid,'/APP/Archive/GetListForSchool',{PageIndex:0,PageSize:10,Expired:false},function(data){
+							if(data.ResultCode == 0)
+							{
+								data.Data.forEach(function(e){
+									Archives.push({value:e.Guid,text: e.Title});
+								});
+								myArchiveId = Archives[0].value;
+								txt_Archive.value = Archives[0].text;
+							}
+						});
+					}
+					
+					function GetClasses(){
+						post(token,uGuid,'/APP/Class/GetList',{PageIndex:0,PageSize:100,Key:'',GradeCode:''},function(data){
+								if(data.ResultCode == 0)
+								{
+									data.Data.forEach(function(e){
+										Classs.push({value:e.Guid,text: e.ClassName});
+									});
+									ClasssPicker.setData(Classs);
+								}
+						});
+						
+						showClassPicker.addEventListener('tap', function(event) {
+							ClasssPicker.show(function(items) {
+								//userResult.innerText = items[0].text;
+								showClassPicker.innerText = items[0].text;
+								myClassGuid = items[0].value;
+								if(mySex != null && myClassGuid != null)
+									GetStudents(myClassGuid,mySex);
+							});
+						}, false);
+					}
+					
+					function GetStudents(classGuid,sex){
+						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField:'RealName',SortDir:'asc'},function(data){
+							if(data.ResultCode == 0)
+							{
+								data.Data.forEach(function(e){
+									//students.push({value:e.StudentNo,text: e.RealName});
+									console.log(e);
+									var Students = doc.getElementById("Students");
+									Students.innerHTML +='<div class="mui-input-row" data-id='+ e.StudentNo +'><label>'+ e.RealName +'</label>	<input id="txt_height" type="text" ></div>';
+								
+								});
+							}
+						});
+					}
+					function loadData(studentNo){
+						var inputInfo = {AGuid:myArchiveId,StudentNo:studentNo};
+						console.log(inputInfo);
+						post(token,uGuid,'/APP/Mark/GetList',inputInfo,function(data){
+							if(data.ResultCode == 0)
+							{
+								data.Data.forEach(function(e){
+									
+								});
+							}
+							console.log(data);
+						});
+					}
 					
 					var save = doc.getElementById("save");
-					var txt_weight1 = doc.getElementById("txt_weight1");
-					var txt_height = doc.getElementById("txt_height");
-					var txt_weight = doc.getElementById("txt_weight");
-					var txt_capacity = doc.getElementById("txt_capacity");
-					var txt_longRun = doc.getElementById("txt_longRun");
-					var txt_shortRun = doc.getElementById("txt_shortRun");
-					var txt_jump = doc.getElementById("txt_jump");
-					var txt_font = doc.getElementById("txt_font");
-					var txt_up = doc.getElementById("txt_up");
+					//var txt_weight1 = doc.getElementById("txt_weight1");
 					
 					save.addEventListener('tap', function(event) {
-						if(txt_height.value != '' && txt_height.value != '')
-						{
-							var bmi = parseInt(txt_height.value)/(parseInt(txt_height.value) * parseInt(txt_height.value));
-							SaveAchievement(1,bmi);
-						}
-						if(txt_capacity.value != '')
-						{
-							SaveAchievement(4,parseInt(txt_capacity.value));//
-						}
-						if(txt_longRun.value != '' && mySex == 1)
-						{
-							SaveAchievement(7,parseFloat(txt_longRun.value));//
-						}
-						if(txt_longRun.value != '' && mySex == 2)
-						{
-							SaveAchievement(23,parseFloat(txt_longRun.value));//
-						}
-						if(txt_shortRun.value != '')
-						{
-							SaveAchievement(14,parseFloat(txt_shortRun.value));//
-						}
-						if(txt_jump.value != '')
-						{
-							SaveAchievement(15,parseFloat(txt_jump.value));//
-						}
-						if(txt_font.value != '')
-						{
-							SaveAchievement(13,parseFloat(txt_font.value));//
-						}
+						
+						//if(txt_longrun.value != '' && mySex == 2)
+							//SaveAchievement(21,parseInt(txt_up.value));//
 
-						if(txt_up.value != '' && mySex == 1)
-						{
-							SaveAchievement(11,parseInt(txt_up.value));//
-						}
-						if(txt_up.value != '' && mySex == 2)
-						{
-							SaveAchievement(21,parseInt(txt_up.value));//
-						}
 						//console.log(msg);
 						alert('over');
-						loadData(StudentNo)
+						//loadData(StudentNo)
 					});
 					
 					function SaveAchievement(SubjectID,myValue){
@@ -303,117 +293,30 @@
 							TeacherID = items[0].value;
 						});
 					}, false);
-
-					var showStudentPicker = doc.getElementById("showStudentPicker");
-					showStudentPicker.addEventListener('tap', function(event) {
-						StudentPicker.show(function(items) {
-							showStudentPicker.innerText = items[0].text;
-							StudentNo = items[0].value;
-							loadData(StudentNo);
-						});
-					}, false);
 					
-					function GetArchive(){
-						var txt_Archive = doc.getElementById("txt_Archive");
-						var ArchivePicker = new $.PopPicker();
-						var Archives =[];
-						post(token,uGuid,'/APP/Archive/GetListForSchool',{PageIndex:0,PageSize:10,Expired:false},function(data){
-							if(data.ResultCode == 0)
-							{
-								data.Data.forEach(function(e){
-									Archives.push({value:e.Guid,text: e.Title});
-								});
-								myArchiveId = Archives[0].value;
-								txt_Archive.value = Archives[0].text;
-							}
-						});
-					}
+					var showSubjectPicker = doc.getElementById("showSubjectPicker");
+					var SubjectPicker = new $.PopPicker();
+					var Subjects =[];
 					
-					function GetClasses(){
-						post(token,uGuid,'/APP/Class/GetList',{PageIndex:0,PageSize:100,Key:'',GradeCode:''},function(data){
-								if(data.ResultCode == 0)
-								{
-									data.Data.forEach(function(e){
-										Classs.push({value:e.Guid,text: e.ClassName});
-									});
-									ClasssPicker.setData(Classs);
-								}
-						});
-						
-						showClassPicker.addEventListener('tap', function(event) {
-							ClasssPicker.show(function(items) {
-								//userResult.innerText = items[0].text;
-								showClassPicker.innerText = items[0].text;
-								myClassGuid = items[0].value;
-								if(mySex != null && myClassGuid != null)
-									GetStudents(myClassGuid,mySex);
+					var showSubjectPicker  = doc.getElementById('showSubjectPicker');
+					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
+						//respnoseEl.innerHTML = '';
+						//console.log(data);
+						if(data.ResultCode == 0)
+						{
+							data.Data.forEach(function(e){
+								Subjects.push({value:e.ID,text:e.SubjectName});
 							});
-						}, false);
-					}
+							SubjectPicker.setData(Subjects);
+						}
+					});
 					
-					function GetStudents(classGuid,sex){
-						students.splice(0,students.length);
-						post(token,uGuid,'/APP/Student/GetList',{PageIndex:0,PageSize:100,Key:'',ClassGuid:classGuid,GradeCode:0,SortField:'RealName',SortDir:'asc'},function(data){
-							if(data.ResultCode == 0)
-							{
-								data.Data.forEach(function(e){
-									if(e.Sex == sex )
-										students.push({value:e.StudentNo,text: e.RealName});
-									else if(e.Sex == 0)
-										students.push({value:e.StudentNo,text: e.RealName});
-								});
-								StudentPicker.setData(students);
-							}
-						});
-					}
-					function loadData(studentNo){
-						var inputInfo = {AGuid:myArchiveId,StudentNo:studentNo};
-						console.log(inputInfo);
-						post(token,uGuid,'/APP/Mark/GetList',inputInfo,function(data){
-							if(data.ResultCode == 0)
-							{
-								txt_weight1.value = '';
-								txt_capacity.value = '';
-								txt_longRun.value = '';
-								txt_shortRun.value = '';
-								txt_jump.value = '';
-								txt_font.value = '';
-								txt_up.value = '';
-								
-								data.Data.forEach(function(e){
-									if(e.SubjectID == 1)
-									{
-										txt_weight1.value = e.Score + '  ' + e.Description;
-									}
-									else if(e.SubjectID == 4)
-									{
-										txt_capacity.value = e.StrMark;
-									}
-									else if(e.SubjectID == 7 || e.SubjectID == 23)
-									{
-										txt_longRun.value = e.StrMark;
-									}
-									else if(e.SubjectID == 14)
-									{
-										txt_shortRun.value = e.StrMark;
-									}
-									else if(e.SubjectID == 15)
-									{
-										txt_jump.value = e.StrMark;
-									}
-									else if(e.SubjectID == 13)
-									{
-										txt_font.value = e.StrMark;
-									}
-									else if(e.SubjectID == 11 || e.SubjectID == 21 )
-									{
-										txt_up.value = e.StrMark;
-									}
-								});
-							}
-							console.log(data);
-						});
-					}
+					showSubjectPicker.addEventListener('tap', function(event) {
+						SubjectPicker.show(function(items) {
+							showSubjectPicker.innerText = items[0].text;
+							mySubjectId = items[0].value;
+						})
+					});
 					
 				});
 			})(mui, document,jQuery);
