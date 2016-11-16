@@ -70,7 +70,7 @@
 		<script src="js/mui.min.js"></script>
 		<script src="js/mui.picker.js"></script>
 		<script src="js/mui.poppicker.js"></script>
-		<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery/jquery-2.1.1.min.js"></script>
+		<script src="js/jquery-2.1.1.min.js"></script>
 		<script>
 			var menu = null,
 				main = null;
@@ -119,6 +119,23 @@
 					}
 				};
 			
+			if (!Array.prototype.forEach)
+				{
+				 Array.prototype.forEach = function(fun /*, thisp*/)
+				 {
+				  var len = this.length;
+				  if (typeof fun != "function")
+				   throw new TypeError();
+				 
+				  var thisp = arguments[1];
+				  for (var i = 0; i < len; i++)
+				  {
+				   if (i in this)
+				    fun.call(thisp, this[i], i, this);
+				  }
+				 };
+				}
+
 			(function($, doc,$$) {
 				$.init();
 				$.ready(function() {
@@ -191,7 +208,7 @@
 									//students.push({value:e.StudentNo,text: e.RealName});
 									console.log(e);
 									var Students = doc.getElementById("Students");
-									Students.innerHTML +='<div class="mui-input-row" data-id='+ e.StudentNo +'><label>'+ e.RealName +'</label>	<input id="txt_height" type="text" ></div>';
+									Students.innerHTML +='<div class="mui-input-row"><label>'+ e.RealName +'</label>	<input type="text" data-id='+ e.StudentNo +' class="chengji"></div>';
 								
 								});
 							}
@@ -215,11 +232,16 @@
 					//var txt_weight1 = doc.getElementById("txt_weight1");
 					
 					save.addEventListener('tap', function(event) {
+						var elements = doc.getElementsByClassName("chengji");
+						var cjs = [];
+						elements.forEach(function(e){
+							cjs.push({StudentNo:$$(this).Attr("data-id"),chengji:$$(this).value()});
+						});
 						
+						console.log(cjs);
 						//if(txt_longrun.value != '' && mySex == 2)
-							//SaveAchievement(21,parseInt(txt_up.value));//
+						//SaveAchievement(21,parseInt(txt_up.value));//
 
-						//console.log(msg);
 						alert('over');
 						//loadData(StudentNo)
 					});
@@ -302,10 +324,11 @@
 					post(token,uGuid,'/EVA/SUBJECT/getlist',{PageIndex:0,PageSize:10,Expired:false},function(data){	
 						//respnoseEl.innerHTML = '';
 						//console.log(data);
+
 						if(data.ResultCode == 0)
 						{
 							data.Data.forEach(function(e){
-								Subjects.push({value:e.ID,text:e.SubjectName});
+								Subjects.push({value:e.ID,text:e.SubjectName + '(单位：'+ e.Unit + ')'});
 							});
 							SubjectPicker.setData(Subjects);
 						}
@@ -317,7 +340,7 @@
 							mySubjectId = items[0].value;
 						})
 					});
-					
+		
 				});
 			})(mui, document,jQuery);
 			
