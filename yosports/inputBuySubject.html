@@ -234,11 +234,22 @@
 					save.addEventListener('tap', function(event) {
 						var elements = doc.getElementsByClassName("chengji");
 						var cjs = [];
-						elements.forEach(function(e){
-							cjs.push({StudentNo:$$(this).Attr("data-id"),chengji:$$(this).value()});
-						});
+						for (var i = 0; i < elements.length; i++) {
+					        var el = elements[i];
+					        if(el.value != null && el.value != '')
+					        {
+					        	var tmp = {StudentNo:el.getAttribute("data-id"),chengji:el.value};
+					        	console.log(tmp);
+					        	cjs.push(tmp);
+					        }
+					    }
+						//elements.forEach(function(e){
+							//cjs.push({StudentNo:$$(this).Attr("data-id"),chengji:$$(this).value()});
+						//	cjs.push({StudentNo:123,chengji:e.value()});
+						//});
 						
-						console.log(cjs);
+						//console.log(elements);
+						
 						//if(txt_longrun.value != '' && mySex == 2)
 						//SaveAchievement(21,parseInt(txt_up.value));//
 
