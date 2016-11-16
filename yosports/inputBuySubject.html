@@ -206,7 +206,6 @@
 							{
 								data.Data.forEach(function(e){
 									//students.push({value:e.StudentNo,text: e.RealName});
-									console.log(e);
 									var Students = doc.getElementById("Students");
 									Students.innerHTML +='<div class="mui-input-row"><label>'+ e.RealName +'</label>	<input type="text" data-id='+ e.StudentNo +' class="chengji"></div>';
 								
@@ -216,7 +215,7 @@
 					}
 					function loadData(studentNo){
 						var inputInfo = {AGuid:myArchiveId,StudentNo:studentNo};
-						console.log(inputInfo);
+						//console.log(inputInfo);
 						post(token,uGuid,'/APP/Mark/GetList',inputInfo,function(data){
 							if(data.ResultCode == 0)
 							{
@@ -224,8 +223,28 @@
 									
 								});
 							}
-							console.log(data);
+							//console.log(data);
 						});
+					}
+					
+					function SaveAchievement(studentNo,SubjectID,myValue){
+						var markInfo = {
+							ArchiveGuid: myArchiveId,
+							SchoolGuid: schoolGuid,
+							StudentNo: studentNo,
+							SubjectID: SubjectID,
+							Achievement: myValue,
+							TeacherID:TeacherID
+						};	
+						console.log(markInfo);
+						post(token,uGuid,'/APP/Mark/CreateNew',markInfo,function(data){		
+							//respnoseEl.innerHTML = '';					
+							if(data.ResultCode != 0)
+							{
+								alert(data.Message);
+								console.log(data);
+							}
+						})
 					}
 					
 					var save = doc.getElementById("save");
@@ -233,14 +252,17 @@
 					
 					save.addEventListener('tap', function(event) {
 						var elements = doc.getElementsByClassName("chengji");
-						var cjs = [];
 						for (var i = 0; i < elements.length; i++) {
 					        var el = elements[i];
+					        console.log(el);
 					        if(el.value != null && el.value != '')
 					        {
-					        	var tmp = {StudentNo:el.getAttribute("data-id"),chengji:el.value};
-					        	console.log(tmp);
-					        	cjs.push(tmp);
+					        	studentNo = el.getAttribute("data-id").value;
+					        	myValue = el.value;
+					        	console.log(studentNo);
+					        	console.log(mySubjectId);
+					        	console.log(myValue);
+					        	SaveAchievement(studentNo,mySubjectId,myValue);
 					        }
 					    }
 						//elements.forEach(function(e){
@@ -257,7 +279,7 @@
 						//loadData(StudentNo)
 					});
 					
-					function SaveAchievement(SubjectID,myValue){
+					function SaveAchievement(StudentNo,SubjectID,myValue){
 						var markInfo = {
 							ArchiveGuid: myArchiveId,
 							SchoolGuid: schoolGuid,
