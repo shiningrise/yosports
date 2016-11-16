@@ -14,13 +14,13 @@
 		<link href="css/style.css" rel="stylesheet" />	
 		<style>
 			.mui-input-row label {
-				width: 60%;
+				width: 40%;
 				text-align: right;
 			}
 			.mui-input-row label~input,
 			.mui-input-row label~select,
 			.mui-input-row label~textarea {
-				width: 40%;
+				width: 60%;
 			}
 		</style>
 	</head>
@@ -257,7 +257,7 @@
 					        console.log(el);
 					        if(el.value != null && el.value != '')
 					        {
-					        	studentNo = el.getAttribute("data-id").value;
+					        	studentNo = el.getAttribute("data-id");
 					        	myValue = el.value;
 					        	console.log(studentNo);
 					        	console.log(mySubjectId);
