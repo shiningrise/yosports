@@ -22,9 +22,9 @@
 		
 		<div class="mui-content">
 		        <ul class="mui-table-view mui-grid-view mui-grid-9">
-		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3"><a href="#">
+		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3" Id="logout"><a href="#">
 		                    <span class="mui-icon mui-icon-home"></span>
-		                    <div class="mui-media-body">Home</div></a></li>
+		                    <div class="mui-media-body">注销登录</div></a></li>
 		            <li class="mui-table-view-cell mui-media mui-col-xs-4 mui-col-sm-3" Id="inputBuyStudent"><a href="#">
 		                    <span class="mui-icon mui-icon-email"><span class="mui-badge">5</span></span>
 		                    <div class="mui-media-body">按学生录</div></a></li>
@@ -139,6 +139,21 @@
 						return;
 					}
 					
+					var logout = doc.getElementById('logout');
+					inputBuyStudent.addEventListener('tap',function(){
+						
+						localStorage.setItem('token','');
+						localStorage.setItem('uGuid','');
+						localStorage.setItem('schoolGuid','');
+						localStorage.setItem('schoolName','';
+						
+				        $.openWindow({
+						    url:'login.html',
+						    id:'login.html',
+						});
+						return;
+				    });
+				    
 					var inputBuyStudent = doc.getElementById('inputBuyStudent');
 					inputBuyStudent.addEventListener('tap',function(){
 				        $.openWindow({
