@@ -131,21 +131,21 @@
 					
 					if(token == null || uGuid == null || schoolGuid == null)
 					{
-						//window.location.href = 'login.html';
-						$.openWindow({
-						    url:'login.html',
-						    id:'login.html',
-						});
+						window.location.href = 'login.html';
+						//$.openWindow({
+						//    url:'login.html',
+						//    id:'login.html',
+						//});
 						return;
 					}
 					
 					var logout = doc.getElementById('logout');
-					inputBuyStudent.addEventListener('tap',function(){
+					logout.addEventListener('tap',function(){
 						
-						localStorage.setItem('token','');
-						localStorage.setItem('uGuid','');
-						localStorage.setItem('schoolGuid','');
-						localStorage.setItem('schoolName','';
+						localStorage.removeItem('token');
+						localStorage.removeItem('uGuid');
+						localStorage.removeItem('schoolGuid');
+						localStorage.removeItem('schoolName');
 						
 				        $.openWindow({
 						    url:'login.html',
